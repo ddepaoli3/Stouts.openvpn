@@ -1,0 +1,31 @@
+---
+#From: http://allanmcrae.com/2013/09/routing-traffic-with-openvpn/
+- name: Accept OpenVPN UDP port
+  command: iptables -A INPUT -i eth0 -m state --state NEW -p udp --dport {{openvpn_port}} -j ACCEPT
+
+- name: Allow TUN interface connections to OpenVPN server
+  command: iptables -A INPUT -i tun+ -j ACCEPT
+
+- name: 1/3 Allow TUN interface connections to be forwarded through other interfaces
+  command: iptables -A FORWARD -i tun+ -j ACCEPT
+
+- name: 2/3 Allow TUN interface connections to be forwarded through other interfaces
+  command: iptables -A FORWARD -i tun+ -o eth0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+- name: 3/3 Allow TUN interface connections to be forwarded through other interfaces
+  command: iptables -A FORWARD -i eth0 -o tun+ -m state --state RELATED,ESTABLISHED -j ACCEPT
+  
+- name: NAT the VPN client traffic to the internet
+  command: iptables -t nat -A POSTROUTING -s {{openvpn_server.split(' ')[0]}}/{{openvpn_server.split(' ')[1]}} -o eth0 -j MASQUERADE
+
+- name: Install
+  apt: name=iptables-persistent
+  when: ansible_os_family == 'Debian'
+
+- name: Save iptables for iptables-persistent
+  shell: iptables-save > /etc/iptables.rules
+  when: ansible_os_family == 'Debian'
+
+- name: Save iptables
+  shell: iptables-save > /etc/iptables.rules
+

@@ -84,7 +84,7 @@
   notify: [openvpn restart]
 
 - name: Configure server
-  template: src=server.conf.j2 dest={{openvpn_etcdir}}/server.conf
+  template: src=server.conf.j2 dest={{openvpn_etcdir}}/{{openvpn_server_config_name}}.conf
   notify: [openvpn restart]
 
 - name: Ensure openvpn key dir has the right permission

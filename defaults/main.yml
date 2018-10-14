@@ -67,3 +67,6 @@ openvpn_simple_auth_password: ""
 
 # Whether to embed CA, cert, and key info inside client OVPN config file.
 openvpn_unified_client_profiles: no
+
+# Name of the default server
+openvpn_server_config_name: server
